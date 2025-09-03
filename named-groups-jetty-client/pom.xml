@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>named-groups-jdk-client</artifactId>
+	<artifactId>named-groups-jetty-client</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>named-groups-jdk-client</name>
+	<name>named-groups-jetty-client</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>
