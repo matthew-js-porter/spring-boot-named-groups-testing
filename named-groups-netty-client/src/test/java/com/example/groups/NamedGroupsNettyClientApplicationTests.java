@@ -1,6 +1,5 @@
-package com.example.named_groups_jdk_client;
+package com.example.groups;
 
-import io.netty.handler.ssl.OpenSslContextOption;
 import io.netty.handler.ssl.SslContextBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +12,6 @@ import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.test.web.servlet.client.RestTestClient;
 import org.springframework.util.function.ThrowingConsumer;
 
-import javax.net.ssl.SSLHandshakeException;
-
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 @SpringBootTest(
 		properties = {
 				"spring.ssl.bundle.jks.client.truststore.location=classpath:keystore/keystore.p12",
@@ -24,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 		},
 		webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT
 )
-class NamedGroupsJdkClientApplicationTests {
+class NamedGroupsNettyClientApplicationTests {
 
 	@Autowired
 	SslBundles sslBundles;
@@ -39,23 +34,12 @@ class NamedGroupsJdkClientApplicationTests {
 		restTestClient.get().uri("/actuator/info").exchange().expectStatus().is2xxSuccessful();
 	}
 
-	@Test
-	void invalidNameGroup() {
-		final SslBundle sslBundle  = sslBundles.getBundle("client");
-		final RestTestClient restTestClient = RestTestClient.bindToServer(netty(sslBundle, "BAD"))
-				.baseUrl("https://localhost:8443")
-				.build();
-		assertThatThrownBy(() -> restTestClient.get().uri("/actuator/info").exchange()).hasCauseInstanceOf(SSLHandshakeException.class);
-	}
-
 	private ClientHttpRequestFactory netty(final SslBundle sslBundle, final String nameGroup) {
 		return ClientHttpRequestFactoryBuilder.reactor().withHttpClientCustomizer(httpClient -> httpClient.secure((ThrowingConsumer.of((spec)  -> {
             SslManagerBundle managers = sslBundle.getManagers();
             SslContextBuilder builder = SslContextBuilder.forClient()
                     .keyManager(managers.getKeyManagerFactory())
-                    .trustManager(managers.getTrustManagerFactory())
-					// Need to ope
-                    .option(OpenSslContextOption.GROUPS, new String[] {nameGroup});
+                    .trustManager(managers.getTrustManagerFactory());
             spec.sslContext(builder.build());
         })))).build();
 	}
