@@ -1,4 +1,4 @@
-package com.example.named_groups_jdk_client;
+package com.example.named.groups;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

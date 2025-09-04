@@ -1,4 +1,4 @@
-package com.example.named_groups_jdk_client;
+package com.example.named.groups;
 
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.junit.jupiter.api.Test;
