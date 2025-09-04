@@ -45,8 +45,7 @@ import org.springframework.util.ClassUtils;
 import javax.net.ssl.SSLParameters;
 
 /**
- * Override SslServerCustomizer that sets a invalid NamedGroup. This is to test that the server is taking the named group
- * in the SSLParameters.
+ * Override SslServerCustomizer that sets a specific named group.
  */
 class SslServerCustomizer implements JettyServerCustomizer {
 
@@ -72,7 +71,7 @@ class SslServerCustomizer implements JettyServerCustomizer {
             @Override
             public SSLParameters customize(SSLParameters sslParams) {
                 // set to invalid named group. we will use a client to assert that a TLS connection cannot be established.
-                sslParams.setNamedGroups(new String[]{"BAD"});
+                sslParams.setNamedGroups(new String[]{"secp256r1"});
                 return super.customize(sslParams);
             }
         };
