@@ -28,13 +28,13 @@ class NamedGroupsNettyClientApplicationTests {
 	@Test
 	void validNameGroup() {
 		final SslBundle sslBundle  = sslBundles.getBundle("client");
-		final RestTestClient restTestClient = RestTestClient.bindToServer(netty(sslBundle, "x25519"))
+		final RestTestClient restTestClient = RestTestClient.bindToServer(netty(sslBundle))
 				.baseUrl("https://localhost:8443")
 				.build();
 		restTestClient.get().uri("/actuator/info").exchange().expectStatus().is2xxSuccessful();
 	}
 
-	private ClientHttpRequestFactory netty(final SslBundle sslBundle, final String nameGroup) {
+	private ClientHttpRequestFactory netty(final SslBundle sslBundle) {
 		return ClientHttpRequestFactoryBuilder.reactor().withHttpClientCustomizer(httpClient -> httpClient.secure((ThrowingConsumer.of((spec)  -> {
             SslManagerBundle managers = sslBundle.getManagers();
             SslContextBuilder builder = SslContextBuilder.forClient()
