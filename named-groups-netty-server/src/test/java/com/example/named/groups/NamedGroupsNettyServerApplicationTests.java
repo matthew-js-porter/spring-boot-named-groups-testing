@@ -41,7 +41,7 @@ class NamedGroupsNettyServerApplicationTests {
 	@Test
 	void invalidNameGroup() {
 		final SslBundle sslBundle  = sslBundles.getBundle("client");
-		// server is configured to only accept secp256r1 in JdkSslContext.
+		// server is configured to only accept secp256r1 in SslServerCustomizer.
 		final RestTestClient restTestClient = RestTestClient.bindToServer(jetty(sslBundle, "x25519"))
 				.baseUrl("https://localhost:8443")
 				.build();
