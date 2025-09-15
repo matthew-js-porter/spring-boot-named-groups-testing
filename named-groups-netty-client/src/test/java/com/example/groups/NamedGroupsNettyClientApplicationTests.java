@@ -12,6 +12,12 @@ import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.test.web.servlet.client.RestTestClient;
 import org.springframework.util.function.ThrowingConsumer;
 
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLParameters;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 @SpringBootTest(
 		properties = {
 				"spring.ssl.bundle.jks.client.truststore.location=classpath:keystore/keystore.p12",
@@ -28,19 +34,34 @@ class NamedGroupsNettyClientApplicationTests {
 	@Test
 	void validNameGroup() {
 		final SslBundle sslBundle  = sslBundles.getBundle("client");
-		final RestTestClient restTestClient = RestTestClient.bindToServer(netty(sslBundle))
+		final RestTestClient restTestClient = RestTestClient.bindToServer(netty(sslBundle, "x25519"))
 				.baseUrl("https://localhost:8443")
 				.build();
 		restTestClient.get().uri("/actuator/info").exchange().expectStatus().is2xxSuccessful();
 	}
 
-	private ClientHttpRequestFactory netty(final SslBundle sslBundle) {
+	@Test
+	void invalidNameGroup() {
+		final SslBundle sslBundle  = sslBundles.getBundle("client");
+		final RestTestClient restTestClient = RestTestClient.bindToServer(netty(sslBundle, "BAD"))
+				.baseUrl("https://localhost:8443")
+				.build();
+		assertThatThrownBy(() -> restTestClient.get().uri("/actuator/info").exchange())
+				.hasCauseInstanceOf(SSLHandshakeException.class);
+	}
+
+	private ClientHttpRequestFactory netty(final SslBundle sslBundle, final String namedGroup) {
 		return ClientHttpRequestFactoryBuilder.reactor().withHttpClientCustomizer(httpClient -> httpClient.secure((ThrowingConsumer.of((spec)  -> {
             SslManagerBundle managers = sslBundle.getManagers();
             SslContextBuilder builder = SslContextBuilder.forClient()
                     .keyManager(managers.getKeyManagerFactory())
                     .trustManager(managers.getTrustManagerFactory());
-            spec.sslContext(builder.build());
+            spec.sslContext(builder.build()).handlerConfigurator(handler -> {
+				final SSLEngine engine = handler.engine();
+				final SSLParameters sslParameters = engine.getSSLParameters();
+				sslParameters.setNamedGroups(new String[]{ namedGroup });
+				engine.setSSLParameters(sslParameters);
+			});
         })))).build();
 	}
 }
