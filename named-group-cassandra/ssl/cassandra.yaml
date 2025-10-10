@@ -1,0 +1,31 @@
+# Basic Cassandra configuration
+cluster_name: 'Test Cluster'
+num_tokens: 256
+commitlog_sync: periodic
+commitlog_sync_period_in_ms: 10000
+partitioner: org.apache.cassandra.dht.Murmur3Partitioner
+
+# SSL/TLS Configuration
+client_encryption_options:
+    enabled: true
+    optional: false
+    keystore: /opt/cassandra/conf/ssl/cassandra.keystore
+    keystore_password: cassandra
+    truststore: /opt/cassandra/conf/ssl/cassandra.truststore
+    truststore_password: cassandra
+    protocol: TLS
+    algorithm: SunX509
+    store_type: JKS
+    cipher_suites: [TLS_AES_128_GCM_SHA256]
+
+# Seed provider configuration
+seed_provider:
+    - class_name: org.apache.cassandra.locator.SimpleSeedProvider
+      parameters:
+          - seeds: "172.18.0.2"
+
+# Network settings
+listen_address: 172.18.0.2
+rpc_address: 0.0.0.0
+broadcast_rpc_address: 172.18.0.2
+endpoint_snitch: GossipingPropertyFileSnitch
