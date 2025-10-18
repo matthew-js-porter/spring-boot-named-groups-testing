@@ -1,6 +1,7 @@
 package com.example.named_group_kafka;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+//@SpringBootTest(properties = "spring.kafka.producer.properties.ssl.groups=BAD")
 @SpringBootTest
 @Testcontainers
 @DirtiesContext
@@ -31,9 +33,9 @@ public class KafkaSslIntegrationTest {
             .withExposedService("zookeeper", 2181);
 
     @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
+    private KafkaTemplate<@NotNull String, @NotNull String> kafkaTemplate;
 
-    private CountDownLatch latch = new CountDownLatch(1);
+    private final CountDownLatch latch = new CountDownLatch(1);
     private String receivedMessage;
 
     @DynamicPropertySource

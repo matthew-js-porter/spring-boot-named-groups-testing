@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: named-groups-kafka-client
+  kafka:
+    bootstrap-servers: localhost:9093
+    security:
+      protocol: SSL
+    producer:
+      properties:
+        ssl.engine.factory.class: com.example.named_group_kafka.SslNamedGroupSslEngineFactory
+        ssl.groups: x25519
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: named-groups-consumer
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: earliest
+      properties:
+        ssl.engine.factory.class: com.example.named_group_kafka.SslNamedGroupSslEngineFactory
+        ssl.groups: x25519
