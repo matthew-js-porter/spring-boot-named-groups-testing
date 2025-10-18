@@ -1,0 +1,52 @@
+services:
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,SSL://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,SSL://localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,SSL:SSL
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      # SSL Configuration
+      KAFKA_SSL_KEYSTORE_FILENAME: kafka.server.keystore.jks
+      KAFKA_SSL_KEYSTORE_CREDENTIALS: kafka_keystore_creds
+      KAFKA_SSL_KEY_CREDENTIALS: kafka_sslkey_creds
+      KAFKA_SSL_TRUSTSTORE_FILENAME: kafka.server.truststore.jks
+      KAFKA_SSL_TRUSTSTORE_CREDENTIALS: kafka_truststore_creds
+      KAFKA_SSL_CLIENT_AUTH: none
+    volumes:
+      - ./ssl-certs:/etc/kafka/secrets
+    depends_on:
+      - zookeeper
+    command: >
+      bash -c "
+      mkdir -p /etc/kafka/secrets &&
+      echo 'changeit' > /etc/kafka/secrets/kafka_keystore_creds &&
+      echo 'changeit' > /etc/kafka/secrets/kafka_sslkey_creds &&
+      echo 'changeit' > /etc/kafka/secrets/kafka_truststore_creds &&
+      if [ ! -f /etc/kafka/secrets/kafka.server.keystore.jks ]; then
+        keytool -genkey -noprompt -alias kafka-server -dname 'CN=localhost,OU=Test,O=Test,L=Test,S=Test,C=US' -keystore /etc/kafka/secrets/kafka.server.keystore.jks -storepass changeit -keypass changeit -keyalg RSA &&
+        keytool -export -alias kafka-server -keystore /etc/kafka/secrets/kafka.server.keystore.jks -rfc -file /etc/kafka/secrets/kafka-cert.crt -storepass changeit &&
+        keytool -import -noprompt -alias kafka-server -file /etc/kafka/secrets/kafka-cert.crt -keystore /etc/kafka/secrets/kafka.server.truststore.jks -storepass changeit
+      fi &&
+      /etc/confluent/docker/run
+      "
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+networks:
+  default:
+    name: kafka-network
