@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>named-groups-redis-lettuce</artifactId>
+	<artifactId>named-groups-redis-jedis</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>named-groups-redis-lettuce</name>
+	<name>named-groups-redis-jedis</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>

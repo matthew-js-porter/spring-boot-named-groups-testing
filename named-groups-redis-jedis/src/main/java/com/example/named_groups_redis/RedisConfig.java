@@ -1,4 +1,4 @@
-package com.example.named_groups_redis_lettuce;
+package com.example.named_groups_redis;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.data.redis.autoconfigure.JedisClientConfigurationBuilderCustomizer;
@@ -16,8 +16,6 @@ public class RedisConfig {
     JedisClientConfigurationBuilderCustomizer namedGroupCustomizer(@Value("${tls.named-groups:}") String[] namedGroups) throws NoSuchAlgorithmException {
         final SSLParameters sslParameters = SSLContext.getDefault().getDefaultSSLParameters();
         sslParameters.setNamedGroups(namedGroups);
-        return builder -> {
-            builder.customize(customizer -> customizer.sslParameters(sslParameters));
-        };
+        return builder -> builder.customize(customizer -> customizer.sslParameters(sslParameters));
     }
 }
