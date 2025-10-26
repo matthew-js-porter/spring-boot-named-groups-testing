@@ -1,7 +1,9 @@
 package com.example.named_groups_redis_lettuce;
 
+import io.lettuce.core.ClientOptions;
+import io.lettuce.core.SslOptions;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.data.redis.autoconfigure.JedisClientConfigurationBuilderCustomizer;
+import org.springframework.boot.data.redis.autoconfigure.LettuceClientConfigurationBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,11 +15,10 @@ import java.security.NoSuchAlgorithmException;
 public class RedisConfig {
 
     @Bean
-    JedisClientConfigurationBuilderCustomizer namedGroupCustomizer(@Value("${tls.named-groups:}") String[] namedGroups) throws NoSuchAlgorithmException {
+    LettuceClientConfigurationBuilderCustomizer namedGroupCustomizer(@Value("${tls.named-groups:}") String[] namedGroups) throws NoSuchAlgorithmException {
         final SSLParameters sslParameters = SSLContext.getDefault().getDefaultSSLParameters();
         sslParameters.setNamedGroups(namedGroups);
-        return builder -> {
-            builder.customize(customizer -> customizer.sslParameters(sslParameters));
-        };
+        return builder -> builder.clientOptions(ClientOptions.builder()
+                .sslOptions(SslOptions.builder().sslParameters(() -> sslParameters).build()).build());
     }
 }
