@@ -22,7 +22,7 @@ public class NamedGroupCassandraApplication {
 	}
 
     @Bean
-    CqlSessionBuilderCustomizer sslCustomizer(@Value("${named-group}") String namedGroup, final SslBundles sslBundles) {
+    CqlSessionBuilderCustomizer sslCustomizer(@Value("${tls.named-groups}") String[] namedGroups, final SslBundles sslBundles) {
         final SSLContext sslContext = sslBundles.getBundle("cassandra-ssl").createSslContext();
         return cqlSessionBuilder -> cqlSessionBuilder.withSslEngineFactory(new ProgrammaticSslEngineFactory(sslContext, new String[] {"TLS_AES_128_GCM_SHA256"}) {
             @Override
@@ -30,7 +30,7 @@ public class NamedGroupCassandraApplication {
             public SSLEngine newSslEngine(@NonNull EndPoint remoteEndpoint) {
                 final var sslEngine = super.newSslEngine(remoteEndpoint);
                 final SSLParameters sslParameters = sslEngine.getSSLParameters();
-                sslParameters.setNamedGroups(new String[] { namedGroup });
+                sslParameters.setNamedGroups(namedGroups);
                 sslEngine.setSSLParameters(sslParameters);
                 return sslEngine;
             }
